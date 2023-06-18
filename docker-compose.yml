@@ -1,0 +1,46 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./web:/usr/share/nginx/html
+    depends_on:
+      - nodejs
+    networks:
+      - app-network
+
+  mariadb:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: root
+      MYSQL_PASSWORD: M_2190391
+    volumes:
+      - ./mariadb:/var/lib/mysql
+    networks:
+      - app-network
+
+  nodejs:
+    build:
+      context: ./nodejs
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: M_2190391
+      DB_DATABASE: mydatabase
+    volumes:
+      - ./web:/app
+    depends_on:
+      - mariadb
+    networks:
+      - app-network
+
+networks:
+  app-network:
